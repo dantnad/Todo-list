@@ -7,6 +7,7 @@ app.use(express.static('public'));
 app.set("view engine", "ejs");
 
 let tasks = [];
+let workTasks = [];
 
 app.get("/", function(req, res){
     let today = new Date();
@@ -18,14 +19,31 @@ app.get("/", function(req, res){
     let day = today.toLocaleDateString("en-US", options);
 
     res.render("list", {
-      dayOfTheWeek: day,
+      listTitle: day,
       listOfTasks: tasks
     }); 
 });
 
+app.get('/work', function(req, res){
+    res.render("list", {
+      listTitle: "Work List",
+      listOfTasks: workTasks,
+    }); 
+})
+
+app.post('/work', function(req, res){
+    workTasks.push(req.body.task);
+    res.redirect("/work");
+})
+
 app.post("/", function(req, res){
-    tasks.push(req.body.task);
-    res.redirect("/")
+    if (req.body.list === "Work List") {
+      workTasks.push(req.body.task);
+      res.redirect("/work");
+    } else {
+      tasks.push(req.body.task);
+      res.redirect("/");
+    }
 })
 
 app.listen(3000, function(){
